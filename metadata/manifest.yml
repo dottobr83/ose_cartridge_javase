@@ -12,7 +12,7 @@ Versions:
 License: Apache 2.0
 License-Url: http://www.apache.org/licenses/LICENSE-2.0
 Vendor: openjdk
-Source-Url: https://gitlab.ci.gsnet.corp/openshift/ose_cartridge_javase.git
+Source-Url: https://github.com/Produban/ose_cartridge_javase
 Categories:
 - service
 - java
