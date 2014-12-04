@@ -1,0 +1,55 @@
+---
+Name: javase
+Cartridge-Short-Name: JAVASE
+Cartridge-Vendor: produban
+Cartridge-Version: 0.0.1
+Display-Name: Java SE
+Description: Java Platform, Standard Edition or Java SE is a widely used platform 
+  for development and deployment of portable applications for desktop and server environments.
+Version: '1.0'
+Versions:
+- '1.0'
+License: Apache 2.0
+License-Url: http://www.apache.org/licenses/LICENSE-2.0
+Vendor: openjdk
+Source-Url: https://gitlab.ci.gsnet.corp/openshift/ose_cartridge_javase.git
+Categories:
+- service
+- java
+- web_framework
+Website: http://openjdk.java.net/
+Provides:
+- javase
+Publishes:
+  get-internal-uri:
+    Type: NET_TCP:http
+Subscribes:
+  set-env:
+    Type: ENV:*
+    Required: false
+  set-jdbc-info:
+    Type: NET_TCP:jdbc
+Endpoints:
+- Private-IP-Name: IP
+  Private-Port-Name: HTTP_PORT
+  Private-Port: 8080
+  Public-Port-Name: HTTP_PROXY_PORT
+  Protocols:
+  - http
+  - ws
+  Options:
+    primary: true
+  Mappings:
+  - Frontend: ''
+    Backend: ''
+    Options:
+      websocket: 1
+  - Frontend: /health
+    Backend: ''
+    Options:
+      health: true
+- Private-IP-Name: IP
+  Private-Port-Name: JPDA_PORT
+  Private-Port: 8787
+Additional-Control-Actions:
+- threaddump

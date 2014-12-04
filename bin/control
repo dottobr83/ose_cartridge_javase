@@ -1,0 +1,206 @@
+#!/bin/bash
+set -e
+
+source $OPENSHIFT_CARTRIDGE_SDK_BASH
+source ${OPENSHIFT_JAVASE_DIR}/bin/util
+
+if ! [ $# -eq 1 ]
+then
+    echo "Usage: \$0 [start|restart|graceful|graceful-stop|stop|threaddump]"
+    exit 1
+fi
+
+cartridge_type="javase"
+
+JAVASE_PID_FILE="${OPENSHIFT_JAVASE_DIR}/run/javase.pid"
+JAVASE_LOG_FILE="${OPENSHIFT_LOG_DIR}javase.log"
+
+# Kill the process given by $1 and its children
+killtree() {
+    local _pid=$1
+    for _child in $(ps -o pid --no-headers --ppid ${_pid}); do
+        killtree ${_child}
+    done
+
+    local should_be_gone_pid=$(ps -o pid -p ${_pid} --no-headers)
+    if [ -z "$should_be_gone_pid" ]; then
+        return
+    else
+        # process might have finished stopping after the ps check above
+        # so prevent kill from throwing an error (which would exit the script due to bash -e)
+        # with || true
+        kill -TERM ${_pid} || true
+    fi
+
+    local count=0
+    while [ ${count} -lt 15 ]
+    do
+        local should_be_gone_pid=$(ps -o pid -p ${_pid} --no-headers)
+        if [ -z "$should_be_gone_pid" ]; then
+                return
+        else
+                sleep 2
+                let count=${count}+1
+        fi
+    done
+
+    local should_be_gone_pid=$(ps -o pid -p ${_pid} --no-headers)
+    if [ ! -z $should_be_gone_pid ]
+    then
+        kill -9 ${_pid}
+    fi
+}
+
+# Check if the jbossas process is running
+isrunning() {
+    # Check for running app
+    if [ -f "$JAVASE_PID_FILE" ]; then
+      javasepid=$(cat $JAVASE_PID_FILE);
+      running=`/bin/ps --no-headers --pid $javasepid`
+      if test -n "$running";
+      then
+        return 0
+      fi
+    fi
+    # not running
+    return 1
+}
+
+# Check if the server http port is up
+function ishttpup() {
+    count=0
+    while [ ${count} -lt 64 ]
+    do
+        if echo 2> /dev/null > "/dev/tcp/${OPENSHIFT_JAVASE_IP}/${OPENSHIFT_JAVASE_HTTP_PORT}"; then
+            echo "Found ${OPENSHIFT_JAVASE_IP}:${OPENSHIFT_JAVASE_HTTP_PORT} listening port"
+            return 0
+        fi
+        # if the process failed to start, error out immediately
+        # rather than waiting for the timeout on the port being available.
+        javasepid=$(cat $JAVASE_PID_FILE);
+        if ! ps | grep -v grep | grep $javasepid > /dev/null; then
+          return 2
+        fi
+
+        let count=${count}+1
+        sleep 2
+    done
+    return 1
+}
+
+function start_app() {
+    # Check for running app
+    if isrunning; then
+        echo "The javase cartridge is already running" 1>&2
+    else
+        echo "Starting javase cartridge"
+
+        LOGPIPE=${OPENSHIFT_HOMEDIR}/app-root/runtime/logshifter-javase
+        rm -f $LOGPIPE && mkfifo $LOGPIPE
+
+#        /usr/bin/logshifter -tag javase < $LOGPIPE &
+#        ${OPENSHIFT_JAVASE_DIR}/bin/javase start &> $LOGPIPE &
+#        echo $! > $JAVASE_PID_FILE
+
+      ${OPENSHIFT_JAVASE_DIR}/bin/javase start 2>&1 &
+      echo $! > $JAVASE_PID_FILE
+
+        rc=0
+        ishttpup || rc=$?
+        if [ $rc -eq 1 ]; then
+          echo "Timed out waiting for http listening port for $cartridge_type process"
+           exit 1
+        elif [ $rc -eq 2 ]; then
+          echo "$cartridge_type process failed to start"
+          exit 2
+        fi
+    fi
+}
+
+function stop_app() {
+    if ! isrunning; then
+        echo "The javase cartridge is already stopped" 1>&2
+    elif [ -f "$JAVASE_PID_FILE" ]; then
+        echo "Stopping javase cartridge"
+        pid=$(cat $JAVASE_PID_FILE);
+        echo "Sending SIGTERM to javase:$pid ..." 1>&2
+        killtree $pid
+    else
+        echo "Failed to locate JAVASE PID File" 1>&2
+    fi
+}
+
+function threaddump() {
+    if ! isrunning; then
+        echo "The JAVASE cartridge is stopped"
+        exit 1
+    elif [ -f "$JAVASE_PID_FILE" ]; then
+        pid=$(cat $JAVASE_PID_FILE);
+        java_pid=`ps h --ppid $pid -o '%p'`
+        kill -3 $java_pid
+        client_result "Success"
+        client_result ""
+        client_result "The thread dump file will be available via: rhc tail $OPENSHIFT_APP_NAME -g $OPENSHIFT_GEAR_UUID -f ${OPENSHIFT_LOG_DIR}${cartridge_type}.log -o '-n 250'"
+    else
+        echo "Failed to locate JAVASE PID File"
+    fi
+}
+
+# Clean up any log files
+function tidy() {
+  client_message "Emptying javase logs from dir: $OPENSHIFT_LOG_DIR"
+  shopt -s dotglob
+  rm -rf $OPENSHIFT_LOG_DIR/javase.log*
+  rm -rf $OPENSHIFT_JAVASE_DIR/tmp/*
+}
+
+# Reconstruct JAVA_HOME and PATH based on the current version/marker selection
+function update_configuration {
+    export_java_home
+    reinstall_path
+}
+
+case "$1" in
+    start)
+        start_app
+        exit 0
+    ;;
+    graceful-stop|stop)
+        stop_app
+        exit 0
+    ;;
+    restart|graceful)
+        stop_app
+        start_app
+        exit 0
+    ;;
+    threaddump)
+        threaddump
+        exit 0
+    ;;
+    tidy)
+        tidy
+        exit 0
+    ;;
+    status)
+        if ! isrunning; then
+            client_result "The application is either stopped or inaccessible"
+            exit 0
+        fi
+
+        client_result "The javase cartridge is running."
+        exit 0
+    ;;
+    build)
+        ${OPENSHIFT_JAVASE_DIR}/bin/build
+        exit 0
+    ;;
+    deploy)
+        ${OPENSHIFT_JAVASE_DIR}/bin/deploy
+        exit 0
+    ;;
+    update-configuration)
+        update_configuration
+        exit 0
+    ;;
+esac

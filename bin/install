@@ -1,0 +1,10 @@
+#!/bin/bash -e
+
+source $OPENSHIFT_CARTRIDGE_SDK_BASH
+source ${OPENSHIFT_JAVASE_DIR}/bin/util
+
+sed -i "s/{APP_NAME}/${OPENSHIFT_APP_NAME}/g" ${OPENSHIFT_JAVASE_DIR}/template/pom.xml
+
+# Set up the default path and JAVA_HOME
+export JAVA_HOME=$OPENSHIFT_JAVASE_JDK7
+reinstall_path

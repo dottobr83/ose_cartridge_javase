@@ -1,0 +1,5 @@
+#!/bin/bash -eu
+
+javase_version="$1"
+curr="$2"
+next="$3"

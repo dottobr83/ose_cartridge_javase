@@ -1,0 +1,18 @@
+---
+locked_files:
+- bin/
+- bin/*
+- metadata/
+- metadata/*
+- hooks/
+- hooks/*
+- env/
+- env/OPENSHIFT_JAVASE_DIR
+- env/OPENSHIFT_JAVASE_JDK*
+- env/M2_HOME
+#dependency_dirs:
+#- webapps
+build_dependency_dirs:
+- ~/.m2
+snapshot_exclusions:
+- tmp

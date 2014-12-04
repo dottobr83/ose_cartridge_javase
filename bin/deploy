@@ -1,0 +1,36 @@
+#!/bin/bash
+set -e
+set -x
+
+source $OPENSHIFT_CARTRIDGE_SDK_BASH
+source ${OPENSHIFT_JAVASE_DIR}/bin/util
+
+#relink_configs
+
+tmp=${OPENSHIFT_JAVASE_DIR}/tmp
+if [ -d $tmp ]; then
+  for d in $tmp/*; do
+      if [ -d $d ]; then
+          echo "Emptying tmp dir: $d"
+          rm -rf $d/* $d/.[^.]*
+      fi
+  done
+fi
+
+# clear the javase work directory to avoid accumulating old content
+# it will be recreated when javase starts or when the apps directory is changed
+if [ -d ${OPENSHIFT_JAVASE_DIR}/work/ ]; then
+    rm -rf ${OPENSHIFT_JAVASE_DIR}/work/
+fi
+
+# if repo/apps has any files in it, sync them to $OPENSHIFT_JAVASE_DIR/apps
+# and delete any files in $OPENSHIFT_JAVASE_DIR/pps that don't exist in
+# repo/apps
+if [ "$(ls ${OPENSHIFT_REPO_DIR}/apps 2>/dev/null)" ]; then
+  rsync -rS --delete ${OPENSHIFT_REPO_DIR}/apps/ ${OPENSHIFT_JAVASE_DIR}/apps/
+fi
+
+# for hot deploy, the touching is needed when app date is older than current date
+if hot_deploy_enabled_for_latest_deployment; then
+    touch ${OPENSHIFT_JAVASE_DIR}/apps/*
+fi
