@@ -22,7 +22,7 @@ Soon we will improve this documentation also we will include examples.
 ### From OSE
  If you use OSE I recommend to deploy the cartridge using oo-admin-ctl-cartridge
  
-* **rhc:** ejecutar:
+* **rhc:**:
         
         rhc app create -a <app_name> -t javase
         
@@ -80,6 +80,7 @@ This cartridge uses the standard log directory **${OPENSHIFT_LOG_DIR}**.
 There are two standard OpenShift environment variable that are used to change java heap size 
 
 **JVM_HEAP_RATIO**
+
 **JVM_PERMGEN_RATIO**
 
 Both variable are ratios, it means that the heap size depends on the GEAR size.
