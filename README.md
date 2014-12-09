@@ -19,7 +19,7 @@ Soon we will improve this documentation also we will include examples.
         
         rhc app create -a <app_name> -t https://github.com/Produban/ose_cartridge_javase.git
         
-* **Consola web:** Al crear la aplicaciÃ³n, aÃ±adir _https://github.com/Produban/ose_cartridge_javase.git_ 
+* **Consola web:** Al crear la aplicación, añadir _https://github.com/Produban/ose_cartridge_javase.git_ 
 en el bloque **Code Anything**. DespuÃ©s seguir el como si fuera cualquier otro cartucho.
 
 ### From OSE
