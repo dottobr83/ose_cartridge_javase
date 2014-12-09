@@ -98,12 +98,9 @@ function start_app() {
         LOGPIPE=${OPENSHIFT_HOMEDIR}/app-root/runtime/logshifter-javase
         rm -f $LOGPIPE && mkfifo $LOGPIPE
 
-#        /usr/bin/logshifter -tag javase < $LOGPIPE &
-#        ${OPENSHIFT_JAVASE_DIR}/bin/javase start &> $LOGPIPE &
-#        echo $! > $JAVASE_PID_FILE
-
-      ${OPENSHIFT_JAVASE_DIR}/bin/javase start 2>&1 &
-      echo $! > $JAVASE_PID_FILE
+        /usr/bin/logshifter -tag javase < $LOGPIPE &
+        ${OPENSHIFT_JAVASE_DIR}/bin/javase start &> $LOGPIPE &
+        echo $! > $JAVASE_PID_FILE
 
         rc=0
         ishttpup || rc=$?
