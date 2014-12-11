@@ -9,8 +9,10 @@ This first version supports.
 * java markers
 * source and binary deployment
 * java debug
- 
-Soon we will improve this documentation also we will include examples.
+* Thread dump
+
+> IMPORTANT: In order to use this cartridge your application and dependecies must be packaged in a runnable JAR called **application.jar**.
+
 
 ## Installation:
 
@@ -22,10 +24,43 @@ Soon we will improve this documentation also we will include examples.
 ### From OSE
  If you use OSE I recommend to deploy the cartridge using oo-admin-ctl-cartridge
  
-* **rhc:**:
-        
+Once javase cartridge is installed, we can generate new applications using this command:    
+
         rhc app create -a <app_name> -t javase
-        
+
+## How to create a runnable JAR.
+
+You can create a runnable JAR using differents tools, in this example we have used eclipse.
+
+    210  2014-12-10 19:07   META-INF/MANIFEST.MF
+        0  2014-12-10 19:07   org/
+        0  2014-12-10 19:07   org/eclipse/
+        0  2014-12-10 19:07   org/eclipse/jdt/
+        0  2014-12-10 19:07   org/eclipse/jdt/internal/
+        0  2014-12-10 19:07   org/eclipse/jdt/internal/jarinjarloader/
+      978  2014-12-10 19:07   org/eclipse/jdt/internal/jarinjarloader/JIJConstants.class
+      714  2014-12-10 19:07   org/eclipse/jdt/internal/jarinjarloader/JarRsrcLoader$ManifestInfo.class
+     4735  2014-12-10 19:07   org/eclipse/jdt/internal/jarinjarloader/JarRsrcLoader.class
+     1505  2014-12-10 19:07   org/eclipse/jdt/internal/jarinjarloader/RsrcURLConnection.class
+     1841  2014-12-10 19:07   org/eclipse/jdt/internal/jarinjarloader/RsrcURLStreamHandler.class
+     1149  2014-12-10 19:07   org/eclipse/jdt/internal/jarinjarloader/RsrcURLStreamHandlerFactory.class
+        0  2014-12-10 18:08   com/
+        0  2014-12-10 18:08   com/produban/
+        0  2014-12-10 18:08   com/produban/simplehttpserver/
+     1198  2014-12-10 19:06   com/produban/simplehttpserver/SimpleHTTPServer$MyHandler.class
+     1959  2014-12-10 19:06   com/produban/simplehttpserver/SimpleHTTPServer.class
+    489883  2014-12-10 19:07   log4j-1.2.17.jar
+
+
+This is the META-INF/MANIFEST.MF
+
+
+    Manifest-Version: 1.0
+    Rsrc-Class-Path: ./ log4j-1.2.17.jar
+    Class-Path: .
+    Rsrc-Main-Class: com.produban.simplehttpserver.SimpleHTTPServer
+    Main-Class: org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader
+
 
 ## Application deployment:
 
@@ -59,6 +94,47 @@ Soon we will improve this documentation also we will include examples.
         rm -rf pom.xml  README.md  src
         cd ..
 
+The OSE binary deployment package should looks like this:
+
+
+
+     ./
+    ./build-dependencies
+    ./build-dependencies/.m2
+    ./dependencies/
+    ./repo/
+    ./repo/apps/
+    ./repo/apps/.gitkeep
+    ./repo/apps/application.jar
+    ./repo/.openshift/
+    ./repo/.openshift/config/
+    ./repo/.openshift/config/.gitkeep
+    ./repo/.openshift/README.md
+    ./repo/.openshift/action_hooks/
+    ./repo/.openshift/action_hooks/README.md
+    ./repo/.openshift/cron/
+    ./repo/.openshift/cron/daily/
+    ./repo/.openshift/cron/daily/.gitignore
+    ./repo/.openshift/cron/hourly/
+    ./repo/.openshift/cron/hourly/.gitignore
+    ./repo/.openshift/cron/weekly/
+    ./repo/.openshift/cron/weekly/chronograph
+    ./repo/.openshift/cron/weekly/jobs.deny
+    ./repo/.openshift/cron/weekly/jobs.allow
+    ./repo/.openshift/cron/weekly/chrono.dat
+    ./repo/.openshift/cron/weekly/README
+    ./repo/.openshift/cron/monthly/
+    ./repo/.openshift/cron/monthly/.gitignore
+    ./repo/.openshift/cron/README.cron
+    ./repo/.openshift/cron/minutely/
+    ./repo/.openshift/cron/minutely/.gitignore
+    ./repo/.openshift/markers/
+    ./repo/.openshift/markers/README.md
+    ./repo/.openshift/markers/java7
+
+
+> ***NOTE:*** ***./repo/apps/application.jar*** file must contains your java code and all the dependencies, this JAR must be a runnable JAR.
+
 1. Copy your application to /apps/application.jar:
         
         cp [local_path]/[your_app].jar repo/apps/application.jar
@@ -70,6 +146,7 @@ Soon we will improve this documentation also we will include examples.
 1. Deploy new package:
         
         rhc deploy -a /tmp/[app_name].tgz
+
 
 ## Logs
 This cartridge uses the standard log directory **${OPENSHIFT_LOG_DIR}**. 
