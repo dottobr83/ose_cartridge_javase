@@ -32,6 +32,15 @@ Once javase cartridge is installed, we can generate new applications using this 
 
 You can create a runnable JAR using differents tools, in this example we have used eclipse.
 
+1. Just right-click on your project folder (in Eclipse) and select Export
+
+2. Then select Java -> Runnable Jar
+
+3. You will be asked to choose the location of the jar file
+
+4. Finally, select the class that has the Main method that you want to run and choose **Package dependencies with the Jar file** and click Finish
+
+
     210  2014-12-10 19:07   META-INF/MANIFEST.MF
         0  2014-12-10 19:07   org/
         0  2014-12-10 19:07   org/eclipse/
