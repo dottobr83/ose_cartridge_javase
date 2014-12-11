@@ -41,7 +41,7 @@ You can create a runnable JAR using differents tools, in this example we have us
 4. Finally, select the class that has the Main method that you want to run and choose **Package dependencies with the Jar file** and click Finish.
 
 
-
+```
     210  2014-12-10 19:07   META-INF/MANIFEST.MF
         0  2014-12-10 19:07   org/
         0  2014-12-10 19:07   org/eclipse/
@@ -60,17 +60,18 @@ You can create a runnable JAR using differents tools, in this example we have us
      1198  2014-12-10 19:06   com/produban/simplehttpserver/SimpleHTTPServer$MyHandler.class
      1959  2014-12-10 19:06   com/produban/simplehttpserver/SimpleHTTPServer.class
     489883  2014-12-10 19:07   log4j-1.2.17.jar
+```
 
 
 This is the META-INF/MANIFEST.MF
 
-
+```
     Manifest-Version: 1.0
     Rsrc-Class-Path: ./ log4j-1.2.17.jar
     Class-Path: .
     Rsrc-Main-Class: com.produban.simplehttpserver.SimpleHTTPServer
     Main-Class: org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader
-
+```
 
 ## Application deployment:
 
