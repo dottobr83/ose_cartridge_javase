@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-set -x
 
 source $OPENSHIFT_CARTRIDGE_SDK_BASH
 source ${OPENSHIFT_JAVASE_DIR}/bin/util
