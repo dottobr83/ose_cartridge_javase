@@ -38,7 +38,8 @@ You can create a runnable JAR using differents tools, in this example we have us
 
 3. You will be asked to choose the location of the jar file
 
-4. Finally, select the class that has the Main method that you want to run and choose **Package dependencies with the Jar file** and click Finish
+4. Finally, select the class that has the Main method that you want to run and choose **Package dependencies with the Jar file** and click Finish.
+
 
 
     210  2014-12-10 19:07   META-INF/MANIFEST.MF
