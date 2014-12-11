@@ -30,7 +30,9 @@ Once javase cartridge is installed, we can generate new applications using this 
 
 ## How to create a runnable JAR.
 
-You can create a runnable JAR using differents tools, in this example we have used eclipse.
+You can create a runnable JAR using differents tools, let see some examples
+
+### eclipse
 
 1. Just right-click on your project folder (in Eclipse) and select Export
 
@@ -72,6 +74,102 @@ This is the META-INF/MANIFEST.MF
     Rsrc-Main-Class: com.produban.simplehttpserver.SimpleHTTPServer
     Main-Class: org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader
 ```
+
+### maven
+
+``` xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+	http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.produban</groupId>
+	<artifactId>SimpleHTTPServer</artifactId>
+	<packaging>jar</packaging>
+	<version>1.0-SNAPSHOT</version>
+	<name>SimpleHTTPServer</name>
+	<url>http://maven.apache.org</url>
+ 
+	<properties>
+		<jdk.version>1.6</jdk.version>
+		<log4j.version>1.2.17</log4j.version>
+	</properties>
+
+ <!-- uncomment pluginRepositor if your are not using a corporate Artefact repository -->
+ <!--  
+     <pluginRepositories>
+        <pluginRepository>
+            <id>onejar-maven-plugin.googlecode.com</id>
+            <url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
+        </pluginRepository>
+    </pluginRepositories>
+  --> 
+  
+	<dependencies>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+	</dependencies>
+ 
+	<build>
+		<plugins>
+ 
+ 			<!-- Set a compiler level -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>${jdk.version}</source>
+					<target>${jdk.version}</target>
+				</configuration>
+			</plugin>
+			
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.5</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.produban.simplehttpserver.SimpleHTTPServer</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+			</plugin>
+
+            <plugin>
+                <groupId>org.dstovall</groupId>
+                <artifactId>onejar-maven-plugin</artifactId>
+                <version>1.4.4</version>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <!-- Optional -->
+                            <onejarVersion>0.97</onejarVersion>
+                            <!-- Optional, default is false -->
+                            <attachToBuild>true</attachToBuild>
+                            <!-- Optional, default is "onejar" -->
+                            <classifier>onejar</classifier>
+                            <filename>application.jar</filename>
+                            
+                        </configuration>
+                        <goals>
+                            <goal>one-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>			
+ 
+		</plugins>
+	</build>
+ 
+</project>
+```
+
 
 ## Application deployment:
 
